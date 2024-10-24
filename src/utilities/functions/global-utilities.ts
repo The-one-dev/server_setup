@@ -14,18 +14,36 @@ export const catchAsync: CatchAsyncErrorsWrapper = (fn) => {
 };
 
 //function that sends the response to the client
-export const sendResponse: SendResponse = (res, statusCode, message, data) => {
-  if (statusCode === 204) {
+// export const sendResponse: SendResponse = (res, statusCode, message, data) => {
+//   if (statusCode === 204) {
+//     return res.status(204).end();
+//   }
+
+//   let responseJson: ResponseJson = {
+//     status: String(statusCode).startsWith("2") ? "success" : "fail",
+//   };
+
+//   if (message) responseJson.message = message;
+
+//   if (data && typeof data === "object") responseJson.data = data;
+
+//   return res.status(statusCode).json(responseJson);
+// };
+
+export const sendResponse: SendResponse = (res, responseObject) => {
+  if (responseObject.statusCode === 204) {
     return res.status(204).end();
   }
 
   let responseJson: ResponseJson = {
-    status: String(statusCode).startsWith("2") ? "success" : "fail",
+    status: String(responseObject.statusCode).startsWith("2")
+      ? "success"
+      : "fail",
   };
 
-  if (message) responseJson.message = message;
+  responseObject.message && (responseJson["message"] = responseObject.message);
 
-  if (data && typeof data === "object") responseJson.data = data;
+  responseObject.data && (responseJson["data"] = responseObject.data);
 
-  return res.status(statusCode).json(responseJson);
+  return res.status(responseObject.statusCode).json(responseJson);
 };

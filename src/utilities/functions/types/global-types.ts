@@ -1,11 +1,18 @@
 import { NextFunction, Response, Request } from "express";
+import { ResponseObject } from "../interfaces/global-interface";
+
+// export type SendResponse = (
+//   res: Response,
+//   statusCode: number,
+//   message?: string,
+//   data?: Record<string, any>
+// ) => void;
 
 export type SendResponse = (
   res: Response,
-  statusCode: number,
-  message?: string,
-  data?: Record<string, any>
+  responseObject: ResponseObject
 ) => void;
+
 
 export type RequestHandlerFunction = (
   req: Request,

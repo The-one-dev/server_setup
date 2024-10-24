@@ -2,8 +2,11 @@ import { Application, Request, Response } from "express";
 import { BASE_URL } from "./utilities/constants";
 import homeRoutes from "./routes/home-route";
 import createError from "http-errors";
+import { utilities } from "./middlewares/utilities/utilities";
 
 export const router = (app: Application) => {
+  app.use(utilities.captureDeviceDetails);
+
   app.use(`${BASE_URL}`, homeRoutes);
 
   app.use(`${BASE_URL}/auth`, async (req, res) => {});
@@ -16,7 +19,6 @@ export const router = (app: Application) => {
 
   app.all("*", async (req, res, next) => {
     const message = `Either ${req.method.toUpperCase()} method is not supported for '${req.url.toString()}' OR, The requested resource is not available.`;
-
-    next(new createError.NotFound(message));
+    return next(new createError.NotFound(message));
   });
 };
