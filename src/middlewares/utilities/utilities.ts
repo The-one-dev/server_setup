@@ -1,45 +1,63 @@
-import { MiddlewareUtilities } from "./interfaces";
+import { Request, RequestHandler } from "express";
+import { DeviceDetails } from "./interfaces";
 
-export const utilities: MiddlewareUtilities = {
-  getPublicAddress: (req) => {
-    const xForwardedFor = req.header("x-forwarded-for");
+const getIpAddress = (req: Request): string => {
+  const xForwardedFor = req.header("x-forwarded-for");
 
-    const ip =
-      (xForwardedFor ? xForwardedFor.split(",")[0].trim() : null) ||
-      req.ips[0] ||
-      req.ip;
+  const ip =
+    (xForwardedFor ? xForwardedFor.split(",")[0].trim() : null) ||
+    req.ips[0] ||
+    req.ip;
 
-    if (ip === "::1" || ip === "127.0.0.1" || ip.startsWith("::ffff:")) {
-      return "localhost";
-    }
+  if (ip === "::1" || ip === "127.0.0.1" || ip.startsWith("::ffff:")) {
+    return "localhost";
+  }
 
-    return ip;
-  },
+  return ip;
+};
 
-  captureDeviceDetails: (req, res, next) => {
-    const userAgent = req.headers["user-agent"] || "Unknown";
+const captureDevice: RequestHandler = (req, res, next) => {
+  const userAgent = req.headers["user-agent"] || "Unknown";
 
-    const ip = utilities.getPublicAddress(req) || "Unknown";
+  const ip = getIpAddress(req) || "Unknown";
 
-    const browser =
-      RegExp(/(Firefox|Chrome|Safari|Opera|MSIE|Trident|Brave|Edge)/i).exec(
-        userAgent
-      )?.[0] || "Unknown";
+  const browser =
+    RegExp(/(Firefox|Chrome|Safari|Opera|MSIE|Trident|Brave|Edge)/i).exec(
+      userAgent
+    )?.[0] || "Unknown";
 
-    const os = RegExp(/\(([^)]+)\)/).exec(userAgent)?.[1] || "Unknown";
+  const os = RegExp(/\(([^)]+)\)/).exec(userAgent)?.[1] || "Unknown";
 
-    const time = new Date().toUTCString();
+  const time = new Date();
 
-    const deviceDetails = {
-      ip,
-      userAgent,
-      os,
-      time,
-      browser,
-    };
+  const deviceDetails: DeviceDetails = {
+    ip,
+    userAgent,
+    os,
+    time,
+    browser,
+  };
 
-    res.locals["deviceDetails"] = deviceDetails;
+  res.locals["deviceDetails"] = deviceDetails;
 
-    return next();
-  },
+  return next();
+};
+
+const requestLogger: RequestHandler = (req, res, next) => {
+  const { method, url, ip } = req;
+
+  const deviceDetails = { ...(res.locals.deviceDetails as DeviceDetails) };
+
+  const time = deviceDetails.time;
+
+  const requestLog = `${time.toUTCString()}: ${method} to ${url} by ${ip}`;
+
+  console.log(`\n${requestLog}`);
+
+  return next();
+};
+
+export const utilities = {
+  captureDevice,
+  requestLogger,
 };

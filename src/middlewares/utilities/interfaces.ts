@@ -1,6 +1,7 @@
-import { Request, RequestHandler } from "express";
-
-export interface MiddlewareUtilities {
-  getPublicAddress: (req: Request) => string;
-  captureDeviceDetails: RequestHandler;
+export interface DeviceDetails {
+  ip: string;
+  userAgent: string;
+  os: string;
+  time: Date;
+  browser: string;
 }

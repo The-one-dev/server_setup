@@ -1,17 +1,6 @@
-import { NextFunction, Request, Response } from "express";
-import { ResponseJson } from "./interfaces/global-interface";
-import { CatchAsyncErrorsWrapper, SendResponse } from "./types/global-types";
-
-//wrapper function that handles try and catch for request handlers
-export const catchAsync: CatchAsyncErrorsWrapper = (fn) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      await fn(req, res, next);
-    } catch (error) {
-      next(error);
-    }
-  };
-};
+import { Request, Response, NextFunction, RequestHandler } from "express";
+import { ResponseJson } from "../interfaces/global-interface";
+import { SendResponse } from "../types/global-types";
 
 //function that sends the response to the client
 // export const sendResponse: SendResponse = (res, statusCode, message, data) => {
@@ -46,4 +35,27 @@ export const sendResponse: SendResponse = (res, responseObject) => {
   responseObject.data && (responseJson["data"] = responseObject.data);
 
   return res.status(responseObject.statusCode).json(responseJson);
+};
+
+export const safeMiddleware = (fn: RequestHandler) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    Promise.resolve(fn(req, res, next)).catch((err) => {
+      return next(err);
+    });
+  };
+};
+
+export const safeFunction = <T extends (...args: any[]) => any>(fn: T) => {
+  return (...args: Parameters<T>) => {
+    const next = args[args.length - 1] as NextFunction;
+    try {
+      Promise.resolve(fn(...args)).catch((err) => {
+        if (next) return next(err);
+        throw err;
+      });
+    } catch (err) {
+      if (next) return next(err);
+      throw err;
+    }
+  };
 };

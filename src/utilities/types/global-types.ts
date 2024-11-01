@@ -1,4 +1,4 @@
-import { NextFunction, Response, Request } from "express";
+import { NextFunction, Response, Request, RequestHandler } from "express";
 import { ResponseObject } from "../interfaces/global-interface";
 
 // export type SendResponse = (
@@ -13,13 +13,6 @@ export type SendResponse = (
   responseObject: ResponseObject
 ) => void;
 
-
-export type RequestHandlerFunction = (
-  req: Request,
-  res: Response,
-  next?: NextFunction
-) => Promise<any>;
-
 export type CatchAsyncErrorsWrapper = (
-  fn: RequestHandlerFunction
+  fn: RequestHandler
 ) => (req: Request, res: Response, next: NextFunction) => Promise<void>;
