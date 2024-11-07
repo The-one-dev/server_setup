@@ -14,6 +14,9 @@
     "typeRoots": ["./node_modules/@types"],
     "types": ["node"]
   },
-  "include": ["src/**/*.ts"],
+  "include": [
+    "src/**/*.ts",
+    "src/middlewares/validators/auth_validators/auth-validator-schema.middleware.ts"
+  ],
   "exclude": ["node_modules", "src/tests/**/*.ts"]
 }

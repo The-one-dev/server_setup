@@ -4,9 +4,9 @@ import {
   LoginPayload,
   RegistrationPayload,
   ResetPasswordPayload,
-} from "./auth-interface";
-import { authValidatorSchemas } from "./auth-schema";
-import { safeMiddleware } from "../../../utilities/functions/global-utilities";
+} from "./auth-validator-interface";
+import { authValidatorSchemas } from "./auth-validator-schema.middleware";
+import { catchMiddlewareErrors } from "../../../utilities/functions/global-utilities";
 
 declare global {
   namespace Express {
@@ -20,20 +20,22 @@ declare global {
 }
 
 // Validate registration data
-const registrationPayload: RequestHandler = safeMiddleware((req, res, next) => {
-  const { value, error } = authValidatorSchemas.register.validate(req.body, {
-    stripUnknown: true,
-    abortEarly: false,
-  });
-  if (error) {
-    throw error;
+const registrationPayload: RequestHandler = catchMiddlewareErrors(
+  (req, res, next) => {
+    const { value, error } = authValidatorSchemas.register.validate(req.body, {
+      stripUnknown: true,
+      abortEarly: false,
+    });
+    if (error) {
+      throw error;
+    }
+    req.validRegistrationPayload = value as RegistrationPayload;
+    next();
   }
-  req.validRegistrationPayload = value as RegistrationPayload;
-  next();
-});
+);
 
 // Validate login payload
-const loginPayload: RequestHandler = safeMiddleware((req, res, next) => {
+const loginPayload: RequestHandler = catchMiddlewareErrors((req, res, next) => {
   const { value, error } = authValidatorSchemas.login.validate(req.body, {
     stripUnknown: true,
     abortEarly: false,
@@ -46,7 +48,7 @@ const loginPayload: RequestHandler = safeMiddleware((req, res, next) => {
 });
 
 // Validate forgot password payload
-const forgotPasswordPayload: RequestHandler = safeMiddleware(
+const forgotPasswordPayload: RequestHandler = catchMiddlewareErrors(
   (req, res, next) => {
     const { value, error } = authValidatorSchemas.forgotPassword.validate(
       req.body,
@@ -64,7 +66,7 @@ const forgotPasswordPayload: RequestHandler = safeMiddleware(
 );
 
 // Validate reset password
-const resetPasswordPayload: RequestHandler = safeMiddleware(
+const resetPasswordPayload: RequestHandler = catchMiddlewareErrors(
   (req, res, next) => {
     const { value, error } = authValidatorSchemas.resetPassword.validate(
       req.body,

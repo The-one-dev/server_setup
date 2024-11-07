@@ -1,11 +1,16 @@
 import { Router } from "express";
-import { authValidators } from "../middlewares/validators/auth_validators/auth-validator";
+import { authValidators } from "../middlewares/validators/auth_validators/auth-validator.middleware";
+import { authControllers } from "../controllers/utils/auth-controllers";
 
 const authRoutes = Router();
 
-authRoutes.post("/register", authValidators.registrationPayload);
+authRoutes.post(
+  "/register",
+  authValidators.registrationPayload,
+  authControllers.register
+);
 
-authRoutes.post("/login", authValidators.loginPayload);
+authRoutes.post("/login", authValidators.loginPayload, authControllers.login);
 
 authRoutes.post("/forgot-password", authValidators.forgotPasswordPayload);
 

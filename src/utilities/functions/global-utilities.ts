@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction, RequestHandler } from "express";
+import bcrypt from "bcrypt";
 import { ResponseJson } from "../interfaces/global-interface";
 import { SendResponse } from "../types/global-types";
+import { CONSTANTS } from "../constants/values.constant";
 
 //function that sends the response to the client
 // export const sendResponse: SendResponse = (res, statusCode, message, data) => {
@@ -37,7 +39,7 @@ export const sendResponse: SendResponse = (res, responseObject) => {
   return res.status(responseObject.statusCode).json(responseJson);
 };
 
-export const safeMiddleware = (fn: RequestHandler) => {
+export const catchMiddlewareErrors = (fn: RequestHandler) => {
   return (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch((err) => {
       return next(err);
@@ -45,17 +47,33 @@ export const safeMiddleware = (fn: RequestHandler) => {
   };
 };
 
-export const safeFunction = <T extends (...args: any[]) => any>(fn: T) => {
-  return (...args: Parameters<T>) => {
-    const next = args[args.length - 1] as NextFunction;
+export const catchFunctionErrors = <T extends (...args: any[]) => any>(
+  fn: T
+) => {
+  return (...args: Parameters<T>): ReturnType<T> => {
+    const lastArg = args[args.length - 1];
+    const next =
+      typeof lastArg == "function" ? (lastArg as NextFunction) : undefined;
     try {
-      Promise.resolve(fn(...args)).catch((err) => {
+      return Promise.resolve(fn(...args)).catch((err) => {
         if (next) return next(err);
         throw err;
-      });
+      }) as ReturnType<T>;
     } catch (err) {
-      if (next) return next(err);
+      if (next) {
+        next(err);
+        return;
+      }
       throw err;
     }
   };
+};
+
+export const getEnvironment = () => {
+  let environment = process.env.NODE_ENV;
+  if (!["production", "development", "test"].includes(environment)) {
+    console.log(`Invalid environment value, defaulting to 'development'\n`);
+    environment = "development";
+  }
+  return environment;
 };

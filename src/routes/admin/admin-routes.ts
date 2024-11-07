@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authMiddlewares } from "../../middlewares/auth/auth-middleware";
+import { authMiddlewares } from "../../middlewares/auth/auth.middleware";
 
 const adminRouter = Router();
 

@@ -3,7 +3,7 @@ import { ValidationError as joiValidationError } from "joi";
 import { HttpError } from "http-errors";
 import { sendResponse } from "../../utilities/functions/global-utilities";
 import { ResponseObject } from "../../utilities/interfaces/global-interface";
-import { ERRORS } from "../../utilities/constants";
+import { ERRORS } from "../../utilities/constants/errors.constant";
 
 export const globalErrorHandler: ErrorRequestHandler = (
   err,

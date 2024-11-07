@@ -1,5 +1,5 @@
 import { Request, RequestHandler } from "express";
-import { DeviceDetails } from "./interfaces";
+import { DeviceDetails } from "./utilities-interface.middleware";
 
 const getIpAddress = (req: Request): string => {
   const xForwardedFor = req.header("x-forwarded-for");
@@ -15,6 +15,8 @@ const getIpAddress = (req: Request): string => {
 
   return ip;
 };
+
+const restrictTo = () => {};
 
 const captureDevice: RequestHandler = (req, res, next) => {
   const userAgent = req.headers["user-agent"] || "Unknown";

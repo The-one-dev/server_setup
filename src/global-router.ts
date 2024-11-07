@@ -1,12 +1,9 @@
-import { Application, Router } from "express";
-import { BASE_URL } from "./utilities/constants";
+import { Router } from "express";
+import { CONSTANTS } from "./utilities/constants/values.constant";
 import utilityRoutes from "./routes/utils-route";
 import createError from "http-errors";
-import { utilities } from "./middlewares/utilities/utilities";
+import { utilities } from "./middlewares/utilities/utilities.middleware";
 import authRoutes from "./routes/auth-route";
-import organizationRouter from "./routes/organizations/organization-routes";
-import employeeRouter from "./routes/employees/employee-routes";
-import adminRouter from "./routes/admin/admin-routes";
 import protectedRoutesHandler from "./routes/protected-route";
 
 const globalRouter = Router();
@@ -15,11 +12,11 @@ globalRouter.use(utilities.captureDevice);
 
 globalRouter.use(utilities.requestLogger);
 
-globalRouter.use(`${BASE_URL}`, utilityRoutes);
+globalRouter.use(`${CONSTANTS.baseUrl}`, utilityRoutes);
 
-globalRouter.use(`${BASE_URL}/auth`, authRoutes);
+globalRouter.use(`${CONSTANTS.baseUrl}/auth`, authRoutes);
 
-globalRouter.use(`${BASE_URL}/p`, protectedRoutesHandler);
+globalRouter.use(`${CONSTANTS.baseUrl}/p`, protectedRoutesHandler);
 
 globalRouter.all("*", async (req, res, next) => {
   const message = `Either ${req.method.toUpperCase()} method is not supported for '${req.url.toString()}' OR, The requested resource is not available.`;
