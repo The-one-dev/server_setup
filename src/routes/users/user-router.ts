@@ -1,12 +1,11 @@
 import { Router } from "express";
 import { authMiddlewares } from "../../middlewares/auth/auth.middleware";
+import postRoutes from "./post-routes";
 
 const userRouter = Router();
 
-userRouter.use(authMiddlewares.restrictToOrganization);
+userRouter.use(authMiddlewares.restrictToUser);
 
-userRouter.post("/teams", (req, res, next) => {
-  res.status(200).json({ message: "this is a protected route man" });
-});
+userRouter.use("/posts", postRoutes);
 
 export default userRouter;

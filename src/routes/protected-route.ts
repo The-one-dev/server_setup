@@ -7,8 +7,8 @@ const protectedRoutesHandler = Router();
 
 protectedRoutesHandler.use(authMiddlewares.authenticator);
 
-protectedRoutesHandler.use("/admin", adminRouter);
-
 protectedRoutesHandler.use("/", userRouter);
+
+protectedRoutesHandler.use("/admin", adminRouter);
 
 export default protectedRoutesHandler;

@@ -6,6 +6,7 @@ import createError from "http-errors";
 import { VerifiedToken } from "./auth-interfaces.middleware";
 import { userServices } from "../../services/users/user-services";
 import { UserAttributes } from "../../models/model-interfaces";
+import { CONSTANTS } from "../../utilities/constants/values.constant";
 
 declare global {
   namespace Express {
@@ -55,14 +56,23 @@ const authenticator: RequestHandler = catchMiddlewareErrors(
 
     const user = await userServices.findUserByEmail(decodedToken.email);
 
+    if(!user) {
+      throw new createError.Unauthorized(ERRORS.invalidAuthToken);
+    }
+
     req.user = { ...user.toJSON() };
 
     return next();
   }
 );
 
-const restrictToOrganization: RequestHandler = catchMiddlewareErrors(
+const restrictToUser: RequestHandler = catchMiddlewareErrors(
   async (req, res, next) => {
+    const isUser = req.user.role === CONSTANTS.roles.user;
+    const isAdmin = req.user.role === CONSTANTS.roles.superAdmin;
+    if (!(isUser || isAdmin)) {
+      throw new createError[403](ERRORS.notPermitted);
+    }
     return next();
   }
 );
@@ -75,13 +85,17 @@ const restrictToEmployee: RequestHandler = catchMiddlewareErrors(
 
 const restrictToAdmin: RequestHandler = catchMiddlewareErrors(
   async (req, res, next) => {
+    const isAdmin = req.user.role === CONSTANTS.roles.superAdmin;
+    if (!isAdmin) {
+      throw new createError[403](ERRORS.notPermitted);
+    }
     return next();
   }
 );
 
 export const authMiddlewares = {
   authenticator,
-  restrictToOrganization,
+  restrictToUser,
   restrictToEmployee,
   restrictToAdmin,
 };
