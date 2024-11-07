@@ -23,6 +23,10 @@ const createPost = catchMiddlewareErrors(async (req, res, next) => {
 
 const getAllPosts = catchMiddlewareErrors(async (req, res, next) => {
   const allPosts = await postServices.getAllPosts();
+
+  if (allPosts.length <= 0) {
+    throw new createError.NotFound(ERRORS.noPostFound);
+  }
   const response: ResponseObject = {
     statusCode: 200,
     message: RESPONSES.postsRetrieved,
